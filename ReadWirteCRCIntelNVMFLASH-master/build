@@ -1,0 +1,1 @@
+arm-linux-gnueabihf-g++ WriteIntelHex.cpp SimpleGPI_SPI.cpp -o WriteIntelHex 

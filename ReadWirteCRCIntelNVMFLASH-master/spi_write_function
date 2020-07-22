@@ -1,0 +1,107 @@
+#define FLASH_CERS 0xC7
+#define FLASH_SE 0xD8
+//definitions for AT25512 device
+#define WRITE_CYCLE_TIME (5000) //AT25512 write cycle time in us
+#define WRSR (0x01)				//AT25512 write status register
+#define WRITE (0x02)			//AT25512 write data to memory array
+#define READ (0x03)				//AT25512 read data from memory array
+#define WRDI (0x04)				//AT25512 reset write enable latch
+#define RDSR (0x05)				//AT25512 read status register
+#define WREN (0x06)				//AT25512 set write enable latch
+
+int Spi(){
+int fd;
+int ret;
+
+fd = open("/dev/spidev1.0", O_RDWR); //open the spi device
+	if (fd < 0)
+		pabort("can't open device");
+
+	ret = ioctl(fd, SPI_IOC_WR_MODE, &mode); //set the spi mode
+	if (ret == -1)
+		pabort("can't set spi mode");
+
+	ret = ioctl(fd, SPI_IOC_RD_MODE, &mode); //get the spi mode (test)
+	if (ret == -1)
+		pabort("can't get spi mode");
+
+	ret = ioctl(fd, SPI_IOC_WR_BITS_PER_WORD, &bits); //set the spi bits per word
+	if (ret == -1)
+		pabort("can't set bits per word");
+
+	ret = ioctl(fd, SPI_IOC_RD_BITS_PER_WORD, &bits); //get the spi bits per word (test)
+	if (ret == -1)
+		pabort("can't get bits per word");
+
+	ret = ioctl(fd, SPI_IOC_WR_MAX_SPEED_HZ, &speed); //set the spi max speed
+	if (ret == -1)
+		pabort("can't set max speed hz");
+
+	ret = ioctl(fd, SPI_IOC_RD_MAX_SPEED_HZ, &speed); //get the spi max speed (test)
+	if (ret == -1)
+		pabort("can't get max speed hz");
+
+	puts("");
+	printf("The spi mode is set to: %d\n", mode); //output successful settings to the terminal
+	printf("Bits per word: %d\n", bits);
+	speed = 10000;
+	printf("Max speed is set to: %d Hz (%d KHz) (%d MHz)\n", speed, speed / 1000, speed / 1000000);
+
+		///	Spi_address = k << 8;			 //FClem256[k]<<8;
+		//	addresshigh = vPageDetails.at(0).extendedLinearAdderess;///Spi_address >> 16; //
+		//	addressmid = vPageDetails.at(0).pageNo;//;//Spi_address >> 8;	 //
+		//	addresslow =0;// Spi_address;
+			///printf("\nWriting..Adress=%.2X %.2X%.2X, Adress=%ld",addresshigh, addressmid,addresslow,Spi_address );
+		
+     for(int i=0;i<vPageDetails.size();i++){   
+        	char writeenable[1] = {
+				WREN,
+			};
+			char writecommand[4] = {
+				WRITE,
+				vPageDetails.at(i).extendedLinearAdderess,     //addresshigh,
+				 vPageDetails.at(i).pageNo,///addressmid,
+				0,
+			};
+
+			///setcharbuffer(TemCharBuffer,256,set);
+
+			struct spi_ioc_transfer message[1] = {
+				0,
+			}; //setup spi transfer data structure
+
+			message[0].tx_buf = (unsigned long)writeenable; //send the write enable command
+			message[0].rx_buf = (unsigned long)NULL;
+			message[0].len = sizeof(writeenable);
+			message[0].cs_change = 0;
+			//chip select needs to be released
+			usleep(500);
+		
+			ret = ioctl(fd, SPI_IOC_MESSAGE(1), &message); //spi check if sent
+			if (ret < 1)
+				pabort("can't send spi message");
+			
+			struct spi_ioc_transfer message1[2] = {
+				0,
+			}; //setup spi transfer data structure
+
+			message1[0].tx_buf = (unsigned long)writecommand; //send the write command and address
+			message1[0].rx_buf = (unsigned long)NULL;
+			message1[0].len = sizeof(writecommand);
+			message1[0].cs_change = 0;
+			message1[1].tx_buf = (unsigned long)vPageDetails.at(i).pageData;//FMemorypages[k].PageData;
+			; //data;//TempByteBuffer;//data;         //send the data
+			message1[1].rx_buf = (unsigned long)NULL;
+			message1[1].len = 256;//sizeof(FMemorypages[k].PageData); //data);//TempByteBuffer);
+			message1[1].cs_change = 0;;							//release the chip select line
+			usleep(500);
+			
+
+			ret = ioctl(fd, SPI_IOC_MESSAGE(2), &message1); //spi check if sent
+			if (ret < 1)
+				pabort("can't send spi message");
+
+			usleep(5000);
+			/////////////////////////////////////////////////////////////////////////////////////
+		}
+

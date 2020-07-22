@@ -1,0 +1,1 @@
+arm-linux-gnueabihf-g++ pageWriteFF64.cpp SimpleGPI_SPI.cpp -o pageWriteFF64K

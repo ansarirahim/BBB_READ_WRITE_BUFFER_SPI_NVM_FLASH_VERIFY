@@ -1,0 +1,1 @@
+arm-linux-gnueabihf-g++ WriteData64K.cpp -o WriteData64K SimpleGPI_SPI.cpp

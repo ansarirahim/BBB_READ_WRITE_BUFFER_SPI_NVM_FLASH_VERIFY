@@ -1,0 +1,1 @@
+g++ DataRetriveFromIntelBuffer16.cpp -o DataRetriveFromIntelBuffer16

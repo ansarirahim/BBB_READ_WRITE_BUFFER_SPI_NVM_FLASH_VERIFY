@@ -1,0 +1,5 @@
+#arm-linux-gnueabihf-g++ DataRetriveFromIntelBuffer.cpp SimpleGPI_SPI.cpp -o DataRetriveFromIntel
+
+
+#g++ IntelHexDataProcess.cpp SimpleGPI_SPI.cpp -o Test
+g++ IntelHexDataProcess.cpp SimpleGPI_SPI.cpp -o IntelHexDataProcess
