@@ -257,13 +257,14 @@ unsigned char hex2byte(const char *hex)
     iss >> std::hex >> byte;
     return byte % 0x100;
 }
-char my3Bytes[6];
-unsigned char hex3byte(const char *hex)
+//char my3Bytes[6];
+unsigned int sizeOfCCA;
+unsigned int hexStrTounsignedInt(const char *hex)
 {
     unsigned int byte = 0;
     std::istringstream iss(hex);
     iss >> std::hex >> byte;
-    return byte % 0x1000000;
+    return byte ;//% 0x1000000;
 }
 // void xx()
 // {
@@ -303,31 +304,15 @@ int main(int argc, char *argv[])
             break;
           }
     }
+    sizeOfCCA=hexStrTounsignedInt(argv[2]);
     //for (int i = 0; argv[2][i]!='\0'; i++)
-    int argi=0;
-    while(argv[2][argi]!='\0'){
-        my3Bytes[argi] = argv[2][argi];
-       argi++;
-    }
-    addresshigh = hex2byte(myBytes);
+   
+    
 
-    for (int i = 0; i < 2; i++)
-        myBytes[i] = argv[3][i];
-    addresslow = hex2byte(myBytes); //ParseByte(myBytes);
-
-    for (int i = 0; i < 3; i++)
-        myBytes[i] = argv[4][i];
-
-    fromIndex = hex2byte(myBytes); //ParseByte(myBytes);
-
-    if (fromIndex >= 256)
-        fromIndex = 255;
-    toIndex = atoi(argv[5]);
-    if (toIndex + fromIndex > 256)
-        toIndex = 1;
+    
   
 
-    if (argc != 6)
+    if (argc != 2)
     {
         printf("\nNACK");
         return 0;
@@ -458,12 +443,30 @@ int main(int argc, char *argv[])
         }
     }
 
-    printf("%.2X %.2X\n", addresshigh, addresslow);
-    for (int c = fromIndex; c < (toIndex + fromIndex); c++)
+    printf("0x%.4X\n", sizeOfCCA);
+    unsigned char seed=80;
+    unsigned int addresshigh=0;
+    bool readFinished=false;
+    for(unsigned int i=0;i<256++)
     {
+        if(!readFinished)
+        for(unsigned int pagen=0;pagen<256;pagen++)
+        {
+       seed=getNVM_CRC(myNewFilePageData[i].myNewPages[pagen].binaryData,256,seed);
+    addresshigh+=256;
+        if(addresshigh==sizeOfCCA)
+        {
+            readFinished=true;
+             break;
+        }
+       
 
-        if (c % 16 == 0)
-            printf("\n");
-        printf("%.2X", myNewFilePageData[addresshigh].myNewPages[addresslow].binaryData[c]);
+        }
+        
+        
+        
+
     }
+     printf("\n\nCRC41ofBuffer=%d\n",seed);
+   
 }
