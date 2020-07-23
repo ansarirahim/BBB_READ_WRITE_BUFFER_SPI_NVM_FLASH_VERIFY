@@ -257,6 +257,14 @@ unsigned char hex2byte(const char *hex)
     iss >> std::hex >> byte;
     return byte % 0x100;
 }
+char my3Bytes[6];
+unsigned char hex3byte(const char *hex)
+{
+    unsigned int byte = 0;
+    std::istringstream iss(hex);
+    iss >> std::hex >> byte;
+    return byte % 0x1000000;
+}
 // void xx()
 // {
 //     #if OS_Windows
@@ -285,18 +293,22 @@ unsigned char hex2byte(const char *hex)
 int main(int argc, char *argv[])
 
 {
- sprintf(fileName, "%s", PATH_OF_CURRENT_DIRECTORY);
+ sprintf(fileName, "%s", getExePath().c_str());//PATH_OF_CURRENT_DIRECTORY);
    for (int i = 0; i < 100; i++)
     {
 
         fileName[SIZE_OF_CURRENT_DIRECTORY_NAME + i-1] = argv[1][i];
         if (argv[1][i] == '\0')
-          {  printf("\n%d",i);
+          { // printf("\n%d",i);
             break;
           }
     }
-    for (int i = 0; i < 2; i++)
-        myBytes[i] = argv[2][i];
+    //for (int i = 0; argv[2][i]!='\0'; i++)
+    int argi=0;
+    while(argv[2][argi]!='\0'){
+        my3Bytes[argi] = argv[2][argi];
+       argi++;
+    }
     addresshigh = hex2byte(myBytes);
 
     for (int i = 0; i < 2; i++)
@@ -320,15 +332,14 @@ int main(int argc, char *argv[])
         printf("\nNACK");
         return 0;
     }
-   /// static char fileName[100];
-    //static  char subfileName[100];
+ 
    
-    //int ind = 0;
+    
 
-    printf("full=%s\n", fileName);
+   // printf("full=%s\n", fileName);
 
 //printf("cwd=%s\n",  getcwd(cwd,100));
- std::cout << getExePath() << std::endl; 
+//std::cout << "\nHi="<<getExePath() << std::endl; 
     ///
 
     // Try opening input text file
@@ -424,8 +435,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    //printf("\n");
-    ////system("cls");
+   
     fileData.clear();
     fileData.shrink_to_fit();
     for (unsigned int e = 0; e < lc; e++)
